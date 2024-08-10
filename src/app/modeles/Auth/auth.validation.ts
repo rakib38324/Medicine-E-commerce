@@ -1,6 +1,16 @@
 /* eslint-disable no-useless-escape */
 import { z } from 'zod';
 
+
+const emailValidationSchema = z.object({
+  body: z.object({
+    email: z.string({
+      required_error: 'Email is required.',
+    }),
+    token: z.string({ required_error: 'Token is required.' }),
+  }),
+});
+
 const loginValidationSchema = z.object({
   body: z.object({
     username: z.string({
@@ -71,6 +81,7 @@ const resetPasswordValidationSchema = z.object({
 });
 
 export const authValidations = {
+  emailValidationSchema,
   loginValidationSchema,
   changePasswordValidationSchema,
   forgetPasswordValidationSchema,

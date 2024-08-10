@@ -7,6 +7,12 @@ import Auth from '../../middlewares/Auth';
 const router = express.Router();
 
 router.post(
+  '/email-verification',
+  ValidateRequest(authValidations.emailValidationSchema),
+  authControllers.emailVerification,
+);
+
+router.post(
   '/login',
   ValidateRequest(authValidations.loginValidationSchema),
   authControllers.loginUser,

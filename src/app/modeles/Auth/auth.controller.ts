@@ -4,6 +4,18 @@ import catchAsync from '../../utiles/catchAsync';
 import commonRes from '../../utiles/commonResponse';
 import { AuthServices } from './auth.service';
 
+const emailVerification = catchAsync(async (req, res) => {
+  const result = await AuthServices.emailVerification(req.body);
+  const { message } = result;
+
+  commonRes(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: message,
+    data: null,
+  });
+});
+
 const loginUser = catchAsync(async (req, res) => {
   const result = await AuthServices.loginUser(req.body);
   const { refreshToken, token, user } = result;
@@ -59,6 +71,7 @@ const resetPassword = catchAsync(async (req, res) => {
   });
 });
 export const authControllers = {
+  emailVerification,
   loginUser,
   changePassword,
   forgetPassword,

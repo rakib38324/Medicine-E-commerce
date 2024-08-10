@@ -1,5 +1,5 @@
 import httpStatus from 'http-status';
-import { TLoginUser } from './auth.interface';
+import { EmailVerification, TLoginUser } from './auth.interface';
 import AppError from '../../errors/appError';
 import { User } from '../UsersRegistration/userRegistration.model';
 import { TJwtPayload, VerifyToken, createToken } from './auth.utillis';
@@ -7,6 +7,35 @@ import config from '../../config/config';
 import { JwtPayload } from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { sendEmail } from '../../utiles/sendEmail';
+
+const emailVerification = async (payload: EmailVerification) => {
+  const { email, token } = payload;
+  //===>check if the user is exists
+  const isUserExists = await User.findOne({ email: email });
+
+  if (!isUserExists) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Invalid User Information, Please create your account again.');
+  }
+
+  //====> verify token
+  const decoded = VerifyToken(token, config.jwt_access_secret as string);
+
+  // console.log(decoded)
+  if (decoded.email !== payload.email) {
+    throw new AppError(httpStatus.FORBIDDEN, `Token is expired, try again leater.`);
+  }
+
+  await User.findOneAndUpdate(
+    {
+      email: email,
+    },
+    {
+      verified: true,
+    },
+  );
+
+  return { message: 'Email Verifired Successfully.' };
+};
 
 const loginUser = async (payload: TLoginUser) => {
   //===>check if the user is exists
@@ -117,8 +146,10 @@ const forgetPassword = async (email: string) => {
   );
 
   const resetUILink = `${config.reset_password_ui_link}?email=${isUserExists.email}&token=${resetToken}`;
+  const subject =
+    'Medicine E-commerce is send Password Reset Link and Reset your Password with in 20 minutes.';
 
-  sendEmail(isUserExists.email, resetUILink);
+  sendEmail(subject, isUserExists.email, resetUILink);
 
   return `Reset link sent your email: ${isUserExists.email}`;
 };
@@ -161,6 +192,7 @@ const resetPassword = async (
 };
 
 export const AuthServices = {
+  emailVerification,
   loginUser,
   changePassword,
   forgetPassword,
