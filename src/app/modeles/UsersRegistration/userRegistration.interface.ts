@@ -1,13 +1,13 @@
 /* eslint-disable no-unused-vars */
-import { Model, ObjectId } from 'mongoose';
+import { Model } from 'mongoose';
 
 export type TUser = {
   name: string;
   email: string;
   password: string;
   img: string;
-  verified:boolean;
-  role:'super-admin' | 'admin' | 'user';
+  verified: boolean;
+  role: 'superAdmin' | 'admin' | 'user';
   passwordChangedAt?: Date;
 };
 

@@ -10,10 +10,10 @@ const userSchema = new Schema<TUser, UserModel>(
     password: { type: String, required: true },
     name: { type: String, required: true },
     img: { type: String, required: true },
-    verified:{type: Boolean},
+    verified: { type: Boolean },
     role: {
       type: String,
-      enum: ['super-admin', 'admin', 'user'],
+      enum: ['superAdmin', 'admin', 'user'],
     },
     passwordChangedAt: { type: Date },
   },
@@ -39,7 +39,6 @@ userSchema.pre('save', async function (next) {
 userSchema.statics.isUserExistsByEmail = async function (email: string) {
   return await User.findOne({ email });
 };
-
 
 userSchema.statics.isPasswordMatched = async function (
   plainTextPassword: string,

@@ -6,7 +6,6 @@ const handleZodError = (error: ZodError) => {
   });
 
   const errorMessage = errorDetails.join(' ');
-console.log(errorMessage)
   return {
     message: 'Validation Error',
     errorMessage,

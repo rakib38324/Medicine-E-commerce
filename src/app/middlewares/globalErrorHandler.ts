@@ -56,7 +56,7 @@ const globalErrorHandeler: ErrorRequestHandler = (error, req, res, next) => {
   } else if (error.name === 'JsonWebTokenError') {
     message = 'Unauthorized Access';
     errorMessage =
-      'Token expired. You do not have the necessary permissions to access this resource.';
+      'You do not have the necessary permissions to access this resource.';
     errorDetails = null;
   } else if (error instanceof Error) {
     message = error?.name;

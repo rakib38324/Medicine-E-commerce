@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 const handleDuplicateError = (error: any) => {
-  console.log(error);
   const match = error.message.match(/"([^"]*)"/);
   const extracted_msg = match && match[1];
 

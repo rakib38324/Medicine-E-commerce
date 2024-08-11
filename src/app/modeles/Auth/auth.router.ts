@@ -3,6 +3,7 @@ import ValidateRequest from '../../middlewares/validateRequest';
 import { authValidations } from './auth.validation';
 import { authControllers } from './auth.controller';
 import Auth from '../../middlewares/Auth';
+import { USER_ROLE } from '../UsersRegistration/user.constent';
 
 const router = express.Router();
 
@@ -13,6 +14,12 @@ router.post(
 );
 
 router.post(
+  '/resend-email-verification',
+  ValidateRequest(authValidations.resendEmailValidationSchema),
+  authControllers.resendEmailVerification,
+);
+
+router.post(
   '/login',
   ValidateRequest(authValidations.loginValidationSchema),
   authControllers.loginUser,
@@ -20,7 +27,7 @@ router.post(
 
 router.post(
   '/change-password',
-  Auth(),
+  Auth(USER_ROLE.admin, USER_ROLE.superAdmin, USER_ROLE.user),
   ValidateRequest(authValidations.changePasswordValidationSchema),
   authControllers.changePassword,
 );

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import jwt, { JwtPayload } from 'jsonwebtoken';
 
-export type TJwtPayload = { email: string; name: string;  };
+export type TJwtPayload = { email: string; name: string; role: string };
 
 export const createToken = (
   jwtPayload: TJwtPayload,

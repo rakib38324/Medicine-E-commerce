@@ -14,7 +14,10 @@ const emailVerification = async (payload: EmailVerification) => {
   const isUserExists = await User.findOne({ email: email });
 
   if (!isUserExists) {
-    throw new AppError(httpStatus.NOT_FOUND, 'Invalid User Information, Please create your account again.');
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      'Invalid User Information, Please create your account again.',
+    );
   }
 
   //====> verify token
@@ -22,7 +25,10 @@ const emailVerification = async (payload: EmailVerification) => {
 
   // console.log(decoded)
   if (decoded.email !== payload.email) {
-    throw new AppError(httpStatus.FORBIDDEN, `Token is expired, try again leater.`);
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      `Invalid User Information, try again leater.`,
+    );
   }
 
   await User.findOneAndUpdate(
@@ -37,15 +43,68 @@ const emailVerification = async (payload: EmailVerification) => {
   return { message: 'Email Verifired Successfully.' };
 };
 
-const loginUser = async (payload: TLoginUser) => {
+const resendEmailVerification = async (payload: { email: string }) => {
+  const { email } = payload;
   //===>check if the user is exists
-
-  const isUserExists = await User.isUserExistsByUserName(payload.username);
+  const isUserExists = await User.findOne({ email: email });
 
   if (!isUserExists) {
     throw new AppError(
       httpStatus.NOT_FOUND,
-      'User not found! Check your username.',
+      'Invalid User Information, Please create your account.',
+    );
+  }
+
+  if (isUserExists?.verified) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Your email already verified.');
+  }
+
+  const jwtPayload = {
+    email,
+    name: isUserExists?.name,
+    role: isUserExists?.role,
+  };
+  //===========> create token and sent to the client
+  const resetToken = createToken(
+    jwtPayload,
+    config.jwt_access_secret as string,
+    '20m',
+  );
+
+  const resetUILink = `${config.email_vErification_ui_link}?email=${email}&token=${resetToken}`;
+
+  const subject = 'Verification email from Medicine E-commerce.';
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; line-height: 1.5;">
+      
+      <p>Dear ${isUserExists?.name},</p>
+      <p>Thank you for registering with us. To complete your registration, please verify your email address by clicking on the following link:</p>
+       <p>
+       <a href="${resetUILink}" style="color: #007bff; text-decoration: none;">Click here to verify your email</a>
+       </p>
+      <p>This link is valid for 20 minutes. Please do not share this code with anyone.</p>
+      <p>If you did not create an account using this email address, please ignore this email.</p>
+      <p>Best regards,<br />Medicine E-Commerce</p>
+    </div>
+  `;
+
+  sendEmail(subject, email, html);
+
+  return {
+    message: `Successfully Resend your verification link with ${email}. Please Check Your Email.`,
+  };
+};
+
+const loginUser = async (payload: TLoginUser) => {
+  //===>check if the user is exists
+
+  const isUserExists = await User.isUserExistsByEmail(payload.email);
+
+  if (!isUserExists) {
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      'User not found! Check your Email.',
     );
   }
 
@@ -62,8 +121,8 @@ const loginUser = async (payload: TLoginUser) => {
   //-====> access granted: send accessToken, RefreshToken
   const jwtPayload: TJwtPayload = {
     email: isUserExists?.email,
-    username: isUserExists?.username,
-    _id: isUserExists?._id,
+    name: isUserExists?.name,
+    role: isUserExists?.role,
   };
 
   //===========> create token and sent to the client
@@ -129,13 +188,16 @@ const forgetPassword = async (email: string) => {
   const isUserExists = await User.isUserExistsByEmail(email);
 
   if (!isUserExists) {
-    throw new AppError(httpStatus.NOT_FOUND, 'This user not found!');
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      'No Account found. PLease check your email.',
+    );
   }
 
   const jwtPayload = {
     email: isUserExists?.email,
-    username: isUserExists?.username,
-    _id: isUserExists?._id,
+    name: isUserExists?.name,
+    role: isUserExists?.role,
   };
 
   //===========> create token and sent to the client
@@ -146,10 +208,22 @@ const forgetPassword = async (email: string) => {
   );
 
   const resetUILink = `${config.reset_password_ui_link}?email=${isUserExists.email}&token=${resetToken}`;
-  const subject =
-    'Medicine E-commerce is send Password Reset Link and Reset your Password with in 20 minutes.';
+  const subject = 'Password Reset Link From Medicine E-commerce.';
+  const html = `
+    <div style="font-family: Arial, sans-serif; line-height: 1.5;">
+      
+      <p>Dear ${isUserExists?.name},</p>
+      <p>Please reset your password by clicking on the following link:</p>
+       <p>
+       <a href="${resetUILink}" style="color: #007bff; text-decoration: none;">Click here to reset your password</a>
+       </p>
+      <p>This link is valid for 20 minutes. Please do not share this code with anyone.</p>
+      <p>If you did not request to reset your password, please ignore this email.</p>
+      <p>Best regards,<br />Medicine E-Commerce</p>
+    </div>
+  `;
 
-  sendEmail(subject, isUserExists.email, resetUILink);
+  sendEmail(subject, isUserExists.email, html);
 
   return `Reset link sent your email: ${isUserExists.email}`;
 };
@@ -193,6 +267,7 @@ const resetPassword = async (
 
 export const AuthServices = {
   emailVerification,
+  resendEmailVerification,
   loginUser,
   changePassword,
   forgetPassword,

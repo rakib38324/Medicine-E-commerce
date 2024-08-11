@@ -13,7 +13,6 @@ const moduleRouters = [
     path: '/auth',
     route: loginRouters,
   },
-  
 ];
 
 moduleRouters.forEach((route) => router.use(route.path, route.route));

@@ -18,7 +18,7 @@ const createUserIntoDB = async (file: any, payload: TUser) => {
     );
   }
 
-  if (payload?.role === 'super-admin' || payload?.role === 'admin') {
+  if (payload?.role === 'superAdmin' || payload?.role === 'admin') {
     throw new AppError(
       httpStatus.BAD_REQUEST,
       'Only Super admin can create Admin or Super Admin account.',
@@ -28,6 +28,7 @@ const createUserIntoDB = async (file: any, payload: TUser) => {
   const jwtPayload = {
     email,
     name,
+    role: 'user',
   };
   //===========> create token and sent to the client
   const resetToken = createToken(
@@ -38,8 +39,7 @@ const createUserIntoDB = async (file: any, payload: TUser) => {
 
   const resetUILink = `${config.email_vErification_ui_link}?email=${email}&token=${resetToken}`;
 
-  const subject =
-    'Verification email from Medicine E-commerce.';
+  const subject = 'Verification email from Medicine E-commerce.';
 
   const html = `
     <div style="font-family: Arial, sans-serif; line-height: 1.5;">

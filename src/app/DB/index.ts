@@ -1,4 +1,3 @@
-
 import config from '../config/config';
 import { USER_ROLE } from '../modeles/UsersRegistration/user.constent';
 import { User } from '../modeles/UsersRegistration/userRegistration.model';
@@ -8,7 +7,8 @@ const superUser = {
   email: 'rakib38324@gmail.com',
   password: config.super_admin_password,
   role: USER_ROLE.superAdmin,
-  img:"https://"
+  verified: true,
+  img: 'https://',
 };
 
 const seedSuperAdmin = async () => {
@@ -17,7 +17,6 @@ const seedSuperAdmin = async () => {
 
   if (!isSuperAdminExists) {
     await User.create(superUser);
-    console.log("Admin Created.")
   }
 };
 

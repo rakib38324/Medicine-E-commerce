@@ -1,7 +1,6 @@
 /* eslint-disable no-useless-escape */
 import { z } from 'zod';
 
-
 const emailValidationSchema = z.object({
   body: z.object({
     email: z.string({
@@ -11,10 +10,18 @@ const emailValidationSchema = z.object({
   }),
 });
 
+const resendEmailValidationSchema = z.object({
+  body: z.object({
+    email: z.string({
+      required_error: 'Email is required.',
+    }),
+  }),
+});
+
 const loginValidationSchema = z.object({
   body: z.object({
-    username: z.string({
-      required_error: 'Username is required.',
+    email: z.string({
+      required_error: 'Email is required.',
     }),
     password: z.string({ required_error: 'Password is required.' }),
   }),
@@ -50,7 +57,7 @@ const changePasswordValidationSchema = z.object({
 const forgetPasswordValidationSchema = z.object({
   body: z.object({
     email: z.string({
-      required_error: 'Team Leader Email is required.',
+      required_error: 'Email is required.',
     }),
   }),
 });
@@ -58,10 +65,12 @@ const forgetPasswordValidationSchema = z.object({
 const resetPasswordValidationSchema = z.object({
   body: z.object({
     email: z.string({
-      required_error: 'Team Leader Email is required.',
+      required_error: 'Email is required.',
     }),
     newPassword: z
-      .string()
+      .string({
+        required_error: 'New Password is required.',
+      })
       .refine((data) => data.length >= passwordMinLength, {
         message: `Password must be at least ${passwordMinLength} characters long.`,
       })
@@ -82,6 +91,7 @@ const resetPasswordValidationSchema = z.object({
 
 export const authValidations = {
   emailValidationSchema,
+  resendEmailValidationSchema,
   loginValidationSchema,
   changePasswordValidationSchema,
   forgetPasswordValidationSchema,
