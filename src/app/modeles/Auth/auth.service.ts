@@ -118,6 +118,13 @@ const loginUser = async (payload: TLoginUser) => {
     throw new AppError(httpStatus.FORBIDDEN, 'Password is not match!!');
   }
 
+  if (!isUserExists?.verified) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      'You are not verified. Please verify your account.',
+    );
+  }
+
   //-====> access granted: send accessToken, RefreshToken
   const jwtPayload: TJwtPayload = {
     email: isUserExists?.email,

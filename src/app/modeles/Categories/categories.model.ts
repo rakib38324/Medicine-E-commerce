@@ -12,4 +12,4 @@ const userSchema = new Schema<TCategories>(
     timestamps: true,
   },
 );
-export const Category = model<TCategories>('Categorie', userSchema);
+export const Category = model<TCategories>('categorie', userSchema);

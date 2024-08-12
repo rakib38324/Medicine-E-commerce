@@ -20,9 +20,32 @@ const createCategoryIntoDB = async (payload: TCategories) => {
 };
 
 const getAllCategoryFromDB = async () => {
-  const categoryExists = await Category.find();
+  // const categoryExists = await Category.find();
 
-  return categoryExists;
+  // return categoryExists;
+  const result = await Category.aggregate([
+    {
+      $group: {
+        _id: '$type', // Group by type
+        categories: {
+          $push: {
+            _id: '$_id',
+            name: '$name',
+            slug: '$slug',
+            thumbnail: '$thumbnail',
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 0, // Exclude _id from the result
+        type: '$_id', // Rename _id field to type
+        categories: 1,
+      },
+    },
+  ]);
+  return result;
 };
 
 const getSingleCategoryFromDB = async (_id: string) => {

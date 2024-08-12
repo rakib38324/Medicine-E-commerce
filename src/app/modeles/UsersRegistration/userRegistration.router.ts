@@ -2,7 +2,7 @@ import express, { NextFunction, Request, Response } from 'express';
 import ValidateRequest from '../../middlewares/validateRequest';
 import { UserValidations } from './userRegistration.validation';
 import { userControllers } from './userRegistration.controller';
-import { upload } from '../../utiles/sendImagetoCloudinary';
+import { upload } from '../../utiles/sendImagetoLocalFile';
 const router = express.Router();
 
 router.post(

@@ -4,7 +4,7 @@ import { User } from '../modeles/UsersRegistration/userRegistration.model';
 
 const superUser = {
   name: 'You are Supper Admin',
-  email: 'rakib38324@gmail.com',
+  email: 'admin12@gmail.com',
   password: config.super_admin_password,
   role: USER_ROLE.superAdmin,
   verified: true,
