@@ -44,4 +44,6 @@ router.post(
   authControllers.resetPassword,
 );
 
+router.get('/me', Auth('superAdmin', 'admin', 'user'), authControllers.getMe);
+
 export const loginRouters = router;

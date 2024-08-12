@@ -16,4 +16,11 @@ router.post(
   userControllers.createUsers,
 );
 
+// router.post(
+//   '/update-user',
+//   Auth('superAdmin'),
+//   ValidateRequest(UserValidations.updateUserValidationSchema),
+//   userControllers.changePassword,
+// );
+
 export const userRouter = router;

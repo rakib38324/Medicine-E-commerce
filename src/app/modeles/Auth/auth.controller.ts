@@ -82,6 +82,19 @@ const resetPassword = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
+const getMe = catchAsync(async (req, res) => {
+  const { email } = req.user;
+  const result = await AuthServices.getMeFromDB(email);
+
+  commonRes(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: `User Information is retrived succesfully`,
+    data: result,
+  });
+});
+
 export const authControllers = {
   emailVerification,
   resendEmailVerification,
@@ -89,4 +102,5 @@ export const authControllers = {
   changePassword,
   forgetPassword,
   resetPassword,
+  getMe,
 };

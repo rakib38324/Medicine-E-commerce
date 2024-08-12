@@ -265,6 +265,26 @@ const resetPassword = async (
   return 'Your Password Changed Successfully';
 };
 
+const getMeFromDB = async (email: string) => {
+  const result = await User.aggregate([
+    {
+      $match: { email: email },
+    },
+    {
+      $project: {
+        password: 0,
+        passwordChangedAt: 0,
+        __v: 0,
+      },
+    },
+  ]);
+  if (result?.length > 0) {
+    return result[0];
+  } else {
+    throw new AppError(httpStatus.NOT_FOUND, 'This user not found!');
+  }
+};
+
 export const AuthServices = {
   emailVerification,
   resendEmailVerification,
@@ -272,4 +292,5 @@ export const AuthServices = {
   changePassword,
   forgetPassword,
   resetPassword,
+  getMeFromDB,
 };
