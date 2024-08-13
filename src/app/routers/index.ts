@@ -4,6 +4,8 @@ import { userRouter } from '../modeles/UsersRegistration/userRegistration.router
 import { categoryRouter } from '../modeles/Categories/categories.router';
 import { productRouter } from '../modeles/Products/products.router';
 import { variantRouter } from '../modeles/Variant/variant.router';
+import { shippinAddressRouter } from '../modeles/ShippingAddress/shippingAddress.router';
+import { orderRouter } from '../modeles/Orders/order.router';
 
 const router = Router();
 
@@ -27,6 +29,14 @@ const moduleRouters = [
   {
     path: '/variant',
     route: variantRouter,
+  },
+  {
+    path: '/shipping-address',
+    route: shippinAddressRouter,
+  },
+  {
+    path: '/order',
+    route: orderRouter,
   },
 ];
 

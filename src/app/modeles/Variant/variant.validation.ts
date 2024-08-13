@@ -1,9 +1,8 @@
 import { z } from 'zod';
-
-// Define the Zod schema for categories
-const ObjectIdSchema = z
-  .string()
-  .regex(/^[0-9a-fA-F]{24}$/, 'Invalid ObjectId');
+import {
+  ObjectIdSchema,
+  ObjectIdSchemaOpotional,
+} from '../Orders/order.validation';
 
 // Define the Zod schema for validation
 export const createVariantValidationSchema = z.object({
@@ -14,6 +13,16 @@ export const createVariantValidationSchema = z.object({
   }),
 });
 
+// Define the Zod schema for validation
+export const updateVariantValidationSchema = z.object({
+  body: z.object({
+    name: z.string().min(1, { message: 'Name is required' }).optional(),
+    price: z.number().min(1, { message: 'Price is required' }).optional(),
+    productId: ObjectIdSchemaOpotional,
+  }),
+});
+
 export const variantValidations = {
   createVariantValidationSchema,
+  updateVariantValidationSchema,
 };

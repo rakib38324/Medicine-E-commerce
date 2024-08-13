@@ -3,6 +3,7 @@ import { Schema, model } from 'mongoose';
 import { TUser, UserModel } from './userRegistration.interface';
 import config from '../../config/config';
 import bcrypt from 'bcrypt';
+import { UpdateQuery } from 'mongoose';
 
 const userSchema = new Schema<TUser, UserModel>(
   {
@@ -31,6 +32,28 @@ userSchema.pre('save', async function (next) {
       user.password,
       Number(config.bcrypt_salt_round),
     );
+  }
+
+  next();
+});
+
+userSchema.pre('findOneAndUpdate', async function (next) {
+  const update = this.getUpdate();
+
+  // Type guard to check if update is of type UpdateQuery
+  if (update && typeof update === 'object' && !Array.isArray(update)) {
+    const updateObj = update as UpdateQuery<any>;
+
+    // Check if the password field is being updated
+    if (updateObj.password && typeof updateObj.password === 'string') {
+      const hashedPassword = await bcrypt.hash(
+        updateObj.password,
+        Number(config.bcrypt_salt_round),
+      );
+
+      // Set the hashed password back to the update object
+      updateObj.password = hashedPassword;
+    }
   }
 
   next();

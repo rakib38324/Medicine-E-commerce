@@ -88,7 +88,7 @@ const getAllProductFromDB = async (query: Record<string, unknown>) => {
 
   const tagQuery = MinMaxQuery.find(baseQuery);
 
-  //===================================> stock status with language <===============================
+  //===================================> stock status  <===============================
   const stockStatus: any = query.stockStatus;
 
   let stockStatusFilter: any = {};

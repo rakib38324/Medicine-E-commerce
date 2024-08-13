@@ -10,10 +10,6 @@ export type TProducts = {
   discount: number;
   stockStatus: boolean; // true if in stock, false otherwise
   status: 'active' | 'inactive'; // Product status
-  categories: [
-    { primaryCategory: Types.ObjectId }, // Reference to the Primary Category
-    { secondaryCategory: Types.ObjectId }, // Reference to the Secondary Category
-    { tertiaryCategory: Types.ObjectId }, // Reference to the Tertiary Category
-  ];
+  categories: [Types.ObjectId];
   variants?: [Types.ObjectId]; // Array of variants
 };

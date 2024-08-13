@@ -51,6 +51,7 @@ router.patch(
 
     next();
   },
+  ValidateRequest(CategoryValidations.categoryUpdateValidationSchema),
   categoryControllers.updateSingleCategory,
 );
 

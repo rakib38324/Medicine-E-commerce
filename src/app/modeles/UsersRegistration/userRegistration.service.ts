@@ -87,6 +87,36 @@ const createUserIntoDB = async (file: any, payload: TUser) => {
   }
 };
 
+const getAllUserFromDB = async () => {
+  const userExists = await User.find().select('-password');
+  return userExists;
+};
+
+const getSingleUserFromDB = async (_id: string) => {
+  const result = await User.findById({ _id }).select('-password');
+  if (!result) {
+    throw new AppError(httpStatus.NOT_FOUND, 'User Inforamtion is not found.');
+  }
+  return result;
+};
+
+const updateUserFromDB = async (_id: string, payload: Partial<TUser>) => {
+  const userExists = await User.findById({ _id });
+  if (!userExists) {
+    throw new AppError(httpStatus.NOT_FOUND, 'User Inforamtion is not found.');
+  }
+
+  const result = await User.findByIdAndUpdate(_id, payload, {
+    new: true,
+    runValidators: true,
+  });
+
+  return result;
+};
+
 export const UserServices = {
   createUserIntoDB,
+  getAllUserFromDB,
+  getSingleUserFromDB,
+  updateUserFromDB,
 };

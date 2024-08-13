@@ -3,6 +3,7 @@ import ValidateRequest from '../../middlewares/validateRequest';
 import { UserValidations } from './userRegistration.validation';
 import { userControllers } from './userRegistration.controller';
 import { upload } from '../../utiles/sendImagetoLocalFile';
+import Auth from '../../middlewares/Auth';
 const router = express.Router();
 
 router.post(
@@ -16,11 +17,14 @@ router.post(
   userControllers.createUsers,
 );
 
-// router.post(
-//   '/update-user',
-//   Auth('superAdmin'),
-//   ValidateRequest(UserValidations.updateUserValidationSchema),
-//   userControllers.changePassword,
-// );
+router.get('/', Auth('admin', 'superAdmin'), userControllers.getAllUsers);
+router.get('/:id', Auth('admin', 'superAdmin'), userControllers.getSingleUser);
+
+router.patch(
+  '/update-user/:id',
+  Auth('superAdmin'),
+  ValidateRequest(UserValidations.updateUserValidationSchema),
+  userControllers.updateUsers,
+);
 
 export const userRouter = router;

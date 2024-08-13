@@ -19,7 +19,23 @@ const createProductSchema = z.object({
     status: z.enum(['active', 'inactive']),
     categories: z.array(ObjectIdSchema),
     variants: z.array(ObjectIdSchema).optional(),
-  }), // Optional array of variant IDs
+  }),
+});
+
+const updateProductSchema = z.object({
+  body: z.object({
+    name: z.string().optional(),
+    slug: z.string().min(1).optional(),
+    photos: z.array(z.string().url()).optional(), // Assuming photos are URLs
+    description: z.string().optional(),
+    metaKey: z.string().optional().optional(),
+    price: z.number().positive().optional(),
+    discount: z.number().nonnegative().optional(),
+    stockStatus: z.boolean().optional(),
+    status: z.enum(['active', 'inactive']).optional(),
+    categories: z.array(ObjectIdSchema).optional(),
+    variants: z.array(ObjectIdSchema).optional().optional(),
+  }),
 });
 
 const picturePayload = z.object({
@@ -29,4 +45,5 @@ const picturePayload = z.object({
 export const productValidations = {
   createProductSchema,
   picturePayload,
+  updateProductSchema,
 };

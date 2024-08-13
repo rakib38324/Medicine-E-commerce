@@ -61,6 +61,7 @@ router.patch(
 
     next();
   },
+  ValidateRequest(productValidations.updateProductSchema),
   productControllers.updateSingleProduct,
 );
 
