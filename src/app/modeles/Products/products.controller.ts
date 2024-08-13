@@ -14,12 +14,17 @@ const createProduct = catchAsync(async (req, res) => {
 });
 
 const getAllProduct = catchAsync(async (req, res) => {
-  const result = await productServices.getAllProductFromDB();
+  const result = await productServices.getAllProductFromDB(req.query);
   commonRes(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'All Product retrieved successfully',
-    data: result,
+    meta: {
+      page: result.page,
+      limit: result.limit,
+      total: result.totalData,
+    },
+    data: result.data,
   });
 });
 

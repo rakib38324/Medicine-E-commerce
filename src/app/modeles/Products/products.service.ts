@@ -5,6 +5,7 @@ import { Product } from './products.model';
 import { deleteImage } from '../../utiles/sendImagetoLocalFile';
 import mongoose from 'mongoose';
 import fs from 'fs';
+import { Variant } from '../Variant/variant.model';
 
 const createProductIntoDB = async (payload: TProducts) => {
   const { name } = payload;
@@ -22,9 +23,120 @@ const createProductIntoDB = async (payload: TProducts) => {
   return result;
 };
 
-const getAllProductFromDB = async () => {
-  const result = await Product.find().populate({ path: 'categories' });
-  return result;
+const getAllProductFromDB = async (query: Record<string, unknown>) => {
+  const queryObj = { ...query };
+
+  const allData = Product.find();
+
+  // Filtering
+  const excludeFields = [
+    'name',
+    'slug',
+    'metaKey',
+    'maxPrice',
+    'minPrice',
+    'discount',
+    'sortBy',
+    'limit',
+    'categories',
+    'type',
+    'page',
+  ];
+
+  excludeFields.forEach((el) => delete queryObj[el]);
+
+  //===========================================> sorting and filtering <===========================================>
+  const sortBy = query.sortBy === 'createdAt';
+  const sortOrder = query.sortOrder === 'asc' ? 1 : -1;
+
+  const sort: any = { [sortBy as any]: sortOrder };
+
+  const filterQuery = allData.find(queryObj).sort(sort);
+
+  //==================================================> min max query <===============================================
+  const minPrice = query.minPrice
+    ? parseFloat(query.minPrice as string)
+    : undefined;
+  const maxPrice = query.maxPrice
+    ? parseFloat(query.maxPrice as string)
+    : undefined;
+
+  const filter: any = {};
+
+  if (minPrice !== undefined || maxPrice !== undefined) {
+    filter.price = {};
+  }
+
+  if (minPrice !== undefined) {
+    filter.price.$gte = minPrice;
+  }
+
+  if (maxPrice !== undefined) {
+    filter.price.$lte = maxPrice;
+  }
+
+  const MinMaxQuery = filterQuery.find({ ...filter });
+
+  //==================================> categories query <=====================================
+  const categoriesName = query.categories;
+
+  const baseQuery: any = {};
+
+  if (categoriesName !== undefined) {
+    baseQuery['categories'] = categoriesName;
+  }
+
+  const tagQuery = MinMaxQuery.find(baseQuery);
+
+  //===================================> stock status with language <===============================
+  const stockStatus: any = query.stockStatus;
+
+  let stockStatusFilter: any = {};
+
+  if (stockStatus !== undefined) {
+    stockStatusFilter = { stockStatus: stockStatus };
+  }
+
+  const stockStatusFilterQuery = tagQuery.find({ ...stockStatusFilter });
+
+  //===================================> status <===============================
+  const status: any = query.status;
+
+  let statusFilter: any = {};
+
+  if (status !== undefined) {
+    statusFilter = { status: status };
+  }
+
+  const statusFilterQuery = stockStatusFilterQuery.find({ ...statusFilter });
+
+  // Create a separate query to get the total Data
+  const totalData = await statusFilterQuery.clone().countDocuments();
+
+  //<============================================> pagination <===========================================>
+  let page = 1;
+  let limit = 10;
+  let skip = 0;
+
+  if (query.limit) {
+    limit = Number(query.limit);
+  }
+
+  if (query.page) {
+    page = Number(query.page);
+    skip = (page - 1) * limit;
+  }
+
+  const paginateQuery = statusFilterQuery.skip(skip);
+  const data = await paginateQuery
+    .limit(limit)
+    .populate({ path: 'categories' })
+    .populate({ path: 'variants' });
+
+  return { data, page, limit, totalData };
+
+  // const result = await Product.find().populate({ path: 'categories' });
+  // return result;
 };
 
 const getSingleProductFromDB = async (_id: string) => {
@@ -95,6 +207,12 @@ const deleteSingleProductFromDB = async (_id: string) => {
 
   if (productExists?.photos) {
     productExists?.photos?.map((photo) => deleteImage(photo));
+  }
+
+  if (productExists?.variants) {
+    for (let i = 0; i < productExists?.variants?.length; i++) {
+      await Variant.findByIdAndDelete(productExists?.variants[i]);
+    }
   }
 
   await Product.findByIdAndDelete({ _id });

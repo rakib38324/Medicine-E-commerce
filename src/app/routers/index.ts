@@ -3,6 +3,7 @@ import { loginRouters } from '../modeles/Auth/auth.router';
 import { userRouter } from '../modeles/UsersRegistration/userRegistration.router';
 import { categoryRouter } from '../modeles/Categories/categories.router';
 import { productRouter } from '../modeles/Products/products.router';
+import { variantRouter } from '../modeles/Variant/variant.router';
 
 const router = Router();
 
@@ -22,6 +23,10 @@ const moduleRouters = [
   {
     path: '/product',
     route: productRouter,
+  },
+  {
+    path: '/variant',
+    route: variantRouter,
   },
 ];
 

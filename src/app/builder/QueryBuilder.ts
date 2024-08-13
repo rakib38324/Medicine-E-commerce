@@ -1,6 +1,6 @@
 import { FilterQuery, Query } from 'mongoose';
 
-class QueryBuilder<T> {
+class QueryBulider<T> {
   public modelQuery: Query<T[], T>;
   public query: Record<string, unknown>;
 
@@ -29,9 +29,20 @@ class QueryBuilder<T> {
     const queryObj = { ...this.query }; // copy
 
     //--> filtering
-    const excludeFields = ['searchTerm', 'sort', 'limit', 'page', 'fields'];
+    const excludeFileds = [
+      'slug',
+      'metaKey',
+      'maxPrice',
+      'minPrice',
+      'searchTerm',
+      'sortOrder',
+      'sortBy',
+      'limit',
+      'page',
+      'fields',
+    ];
 
-    excludeFields.forEach((el) => delete queryObj[el]);
+    excludeFileds.forEach((el) => delete queryObj[el]);
     // console.log({ query, queryObj })
 
     this.modelQuery = this.modelQuery.find(queryObj as FilterQuery<T>);
@@ -66,6 +77,21 @@ class QueryBuilder<T> {
 
     return this;
   }
+
+  async countTotal() {
+    const totalQueries = this.modelQuery.getFilter();
+    const total = await this.modelQuery.model.countDocuments(totalQueries);
+    const page = Number(this.query.page) || 1;
+    const limit = Number(this.query.limit) || 10;
+    const totalPage = Math.ceil(total / limit);
+
+    return {
+      page,
+      limit,
+      total,
+      totalPage,
+    };
+  }
 }
 
-export default QueryBuilder;
+export default QueryBulider;
